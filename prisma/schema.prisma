@@ -19,3 +19,17 @@ model Warga {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+model PengaturanRt {
+  id          Int      @id
+  namaRT      String   @default("")
+  namaRW      String   @default("")
+  kelurahan   String   @default("")
+  kecamatan   String   @default("")
+  kota        String   @default("")
+  provinsi    String   @default("")
+  namaKetuaRT String   @default("")
+  noHpKetuaRT String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 
-const protectedPageRoutes = ["/sensus"];
-const protectedApiRoutes = ["/api/warga"];
+const protectedPageRoutes = ["/sensus", "/pengaturan"];
+const protectedApiRoutes = ["/api/warga", "/api/pengaturan"];
 
 function isProtectedPath(pathname: string) {
   return (
@@ -56,5 +56,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/sensus/:path*", "/api/warga/:path*"],
+  matcher: [
+    "/sensus/:path*",
+    "/pengaturan/:path*",
+    "/api/warga/:path*",
+    "/api/pengaturan/:path*",
+  ],
 };
