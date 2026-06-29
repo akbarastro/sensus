@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Warga {
+  id              Int      @id @default(autoincrement())
+  nama            String
+  tanggalLahir    String
+  jenisKelamin    String?
+  nik             String   @unique
+  noKK            String
+  alamat          String?
+  statusKeluarga  String
+  statusWarga     String   @default("Aktif")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
