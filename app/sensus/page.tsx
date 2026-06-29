@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import SensusForm from "@/components/sensus/SensusForm";
 import SensusStats from "@/components/sensus/SensusStats";
@@ -38,6 +39,18 @@ type ApiResponse<T> = {
   errors?: string[];
 };
 
+type PengaturanRt = {
+  id: number;
+  namaRT: string;
+  namaRW: string;
+  kelurahan: string;
+  kecamatan: string;
+  kota: string;
+  provinsi: string;
+  namaKetuaRT: string;
+  noHpKetuaRT: string;
+};
+
 const ITEMS_PER_PAGE = 20;
 
 const initialForm: FormWarga = {
@@ -49,6 +62,18 @@ const initialForm: FormWarga = {
   alamat: "",
   statusKeluarga: "",
   statusWarga: "Aktif",
+};
+
+const defaultPengaturan: PengaturanRt = {
+  id: 1,
+  namaRT: "",
+  namaRW: "",
+  kelurahan: "",
+  kecamatan: "",
+  kota: "",
+  provinsi: "",
+  namaKetuaRT: "",
+  noHpKetuaRT: "",
 };
 
 function calculateAgeNumber(tanggalLahir: string) {
@@ -100,8 +125,33 @@ function showApiError(message: string, errors?: string[]) {
   alert(message);
 }
 
+function getWilayahText(pengaturan: PengaturanRt) {
+  const rtRw = [pengaturan.namaRT, pengaturan.namaRW]
+    .filter(Boolean)
+    .join(" / ");
+
+  const kelKec = [
+    pengaturan.kelurahan ? `Kelurahan ${pengaturan.kelurahan}` : "",
+    pengaturan.kecamatan ? `Kecamatan ${pengaturan.kecamatan}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const kotaProvinsi = [pengaturan.kota, pengaturan.provinsi]
+    .filter(Boolean)
+    .join(", ");
+
+  return {
+    rtRw: rtRw || "RT / RW belum diatur",
+    kelKec,
+    kotaProvinsi,
+  };
+}
+
 export default function SensusPage() {
   const [dataWarga, setDataWarga] = useState<Warga[]>([]);
+  const [pengaturan, setPengaturan] =
+    useState<PengaturanRt>(defaultPengaturan);
   const [isLoading, setIsLoading] = useState(true);
 
   const [form, setForm] = useState<FormWarga>(initialForm);
@@ -138,25 +188,56 @@ export default function SensusPage() {
     }
   }, []);
 
+  const fetchPengaturan = useCallback(async () => {
+    try {
+      const response = await fetch("/api/pengaturan", {
+        cache: "no-store",
+      });
+
+      const result: ApiResponse<PengaturanRt> = await response.json();
+
+      if (!response.ok || !result.success) {
+        return;
+      }
+
+      if (result.data) {
+        setPengaturan(result.data);
+      }
+    } catch {
+      // Pengaturan tidak wajib menghentikan dashboard.
+    }
+  }, []);
+
   useEffect(() => {
     let isActive = true;
 
     async function loadInitialData() {
       try {
-        const response = await fetch("/api/warga", {
-          cache: "no-store",
-        });
+        const [wargaResponse, pengaturanResponse] = await Promise.all([
+          fetch("/api/warga", {
+            cache: "no-store",
+          }),
+          fetch("/api/pengaturan", {
+            cache: "no-store",
+          }),
+        ]);
 
-        const result: ApiResponse<Warga[]> = await response.json();
+        const wargaResult: ApiResponse<Warga[]> = await wargaResponse.json();
+        const pengaturanResult: ApiResponse<PengaturanRt> =
+          await pengaturanResponse.json();
 
         if (!isActive) return;
 
-        if (!response.ok || !result.success) {
-          alert(result.message || "Gagal mengambil data warga");
+        if (!wargaResponse.ok || !wargaResult.success) {
+          alert(wargaResult.message || "Gagal mengambil data warga");
           return;
         }
 
-        setDataWarga(normalizeData(result.data || []));
+        setDataWarga(normalizeData(wargaResult.data || []));
+
+        if (pengaturanResponse.ok && pengaturanResult.success) {
+          setPengaturan(pengaturanResult.data || defaultPengaturan);
+        }
       } catch {
         if (isActive) {
           alert("Gagal terhubung ke server");
@@ -242,6 +323,10 @@ export default function SensusPage() {
   const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredDataCount);
   const paginatedData = sortedData.slice(startIndex, endIndex);
+
+  const wilayahText = useMemo(() => {
+    return getWilayahText(pengaturan);
+  }, [pengaturan]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -716,11 +801,16 @@ export default function SensusPage() {
     reader.readAsText(file);
   };
 
-  const handlePrintData = () => {
+  const handlePrintData = async () => {
     if (sortedData.length === 0) {
       alert("Tidak ada data untuk dicetak");
       return;
     }
+
+    await fetchPengaturan();
+
+    const latestPengaturan = pengaturan;
+    const latestWilayahText = getWilayahText(latestPengaturan);
 
     const printRows = sortedData
       .map((item, index) => {
@@ -765,10 +855,19 @@ export default function SensusPage() {
             h1 {
               margin: 0;
               font-size: 22px;
+              text-align: center;
+              text-transform: uppercase;
+            }
+
+            h2 {
+              margin: 6px 0 0;
+              font-size: 16px;
+              text-align: center;
+              text-transform: uppercase;
             }
 
             p {
-              margin: 6px 0 18px;
+              margin: 6px 0;
               color: #4b5563;
               font-size: 13px;
             }
@@ -791,6 +890,20 @@ export default function SensusPage() {
               font-weight: 700;
             }
 
+            .header {
+              text-align: center;
+              border-bottom: 2px solid #111827;
+              padding-bottom: 14px;
+              margin-bottom: 16px;
+            }
+
+            .header-info {
+              margin-top: 8px;
+              font-size: 13px;
+              color: #374151;
+              line-height: 1.5;
+            }
+
             .summary {
               margin-bottom: 16px;
               display: flex;
@@ -804,6 +917,22 @@ export default function SensusPage() {
               border-radius: 8px;
             }
 
+            .footer {
+              margin-top: 32px;
+              display: flex;
+              justify-content: flex-end;
+              font-size: 13px;
+            }
+
+            .signature {
+              width: 220px;
+              text-align: center;
+            }
+
+            .signature-space {
+              height: 70px;
+            }
+
             @media print {
               body {
                 padding: 0;
@@ -813,11 +942,29 @@ export default function SensusPage() {
         </head>
 
         <body>
-          <h1>Data Sensus Warga RT</h1>
+          <div class="header">
+            <h1>Laporan Data Sensus Warga</h1>
+            <h2>${escapeHtml(latestWilayahText.rtRw)}</h2>
+
+            <div class="header-info">
+              ${
+                latestWilayahText.kelKec
+                  ? `<div>${escapeHtml(latestWilayahText.kelKec)}</div>`
+                  : ""
+              }
+              ${
+                latestWilayahText.kotaProvinsi
+                  ? `<div>${escapeHtml(latestWilayahText.kotaProvinsi)}</div>`
+                  : ""
+              }
+            </div>
+          </div>
+
           <p>Dicetak pada ${new Date().toLocaleDateString("id-ID")}</p>
 
           <div class="summary">
             <div>Total Data: <strong>${sortedData.length}</strong></div>
+            <div>Total Warga Terdaftar: <strong>${dataWarga.length}</strong></div>
           </div>
 
           <table>
@@ -840,6 +987,17 @@ export default function SensusPage() {
               ${printRows}
             </tbody>
           </table>
+
+          <div class="footer">
+            <div class="signature">
+              <p>${escapeHtml(latestPengaturan.kota || "")}, ${new Date().toLocaleDateString(
+                "id-ID",
+              )}</p>
+              <p>Ketua RT</p>
+              <div class="signature-space"></div>
+              <p><strong>${escapeHtml(latestPengaturan.namaKetuaRT || "-")}</strong></p>
+            </div>
+          </div>
 
           <script>
             window.onload = function() {
@@ -883,16 +1041,25 @@ export default function SensusPage() {
         <div>
           <h1 className="text-3xl font-bold">Data Sensus Warga RT</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Dashboard sensus warga berbasis database
+            {wilayahText.rtRw} · Dashboard sensus warga berbasis database
           </p>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-        >
-          Logout
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/pengaturan"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            Pengaturan RT
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
