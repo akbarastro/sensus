@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Admin username/password belum diatur di .env",
+          message: "Admin username/password belum diatur",
         },
         { status: 500 },
       );
@@ -37,6 +37,7 @@ export async function POST(request: Request) {
     }
 
     const token = await createSessionToken(username);
+
     const response = NextResponse.json({
       success: true,
       message: "Login berhasil",
@@ -51,7 +52,9 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch {
+  } catch (error) {
+    console.error("POST /api/auth/login error:", error);
+
     return NextResponse.json(
       {
         success: false,

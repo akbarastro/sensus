@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
+type LoginResponse = {
+  success: boolean;
+  message?: string;
+};
 
 export default function LoginPage() {
-  const router = useRouter();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -32,15 +34,14 @@ export default function LoginPage() {
         }),
       });
 
-      const result = await response.json();
+      const result: LoginResponse = await response.json();
 
       if (!response.ok || !result.success) {
         alert(result.message || "Login gagal");
         return;
       }
 
-      router.push("/sensus");
-      router.refresh();
+      window.location.href = "/sensus";
     } catch {
       alert("Gagal terhubung ke server");
     } finally {
@@ -68,6 +69,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Masukkan username"
+              autoComplete="username"
               className="w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500"
             />
           </div>
@@ -81,6 +83,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Masukkan password"
+              autoComplete="current-password"
               className="w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500"
             />
           </div>
@@ -93,6 +96,10 @@ export default function LoginPage() {
             {isLoading ? "Memproses..." : "Login"}
           </button>
         </form>
+
+        <p className="mt-5 text-center text-xs text-slate-400">
+          Dashboard hanya bisa diakses oleh admin.
+        </p>
       </div>
     </div>
   );
