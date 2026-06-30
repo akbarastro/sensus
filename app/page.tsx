@@ -3,6 +3,7 @@ import LandingPopupBanner from "@/components/landing/LandingPopupBanner";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const rtProfile = {
   rt: "RT 02",
@@ -17,12 +18,14 @@ const defaultLandingContent = {
   heroTitle: "Lingkungan warga yang rukun, tertib, dan saling peduli.",
   heroDescription:
     "Halaman informasi warga RT 02 Kampung Pasawahan, Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Website ini menjadi media informasi lingkungan, kegiatan warga, pengumuman, dan dokumentasi kebersamaan warga.",
+  heroImageUrl: "",
   aboutLabel: "Tentang Wilayah",
   aboutTitle: "RT 02 Kampung Pasawahan, wilayah warga di Kelurahan Sayati.",
   aboutDescription1:
     "RT 02 Kampung Pasawahan berada di wilayah Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Lingkungan ini menjadi tempat warga beraktivitas, berkomunikasi, dan membangun kehidupan sosial yang saling mendukung.",
   aboutDescription2:
     "Dengan semangat kebersamaan, warga dan pengurus RT berupaya menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam kegiatan sosial dan administrasi warga.",
+  areaImageUrl: "",
   ctaTitle: "Punya informasi atau perubahan data warga?",
   ctaDescription:
     "Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk menyampaikan informasi penting, perubahan data keluarga, atau agenda kegiatan warga.",
@@ -42,7 +45,8 @@ async function getLandingContent() {
     });
 
     return content;
-  } catch {
+  } catch (error) {
+    console.error("GET landing content error:", error);
     return defaultLandingContent;
   }
 }
@@ -245,20 +249,31 @@ export default async function HomePage() {
 
           <div className="grid gap-4">
             <div className="overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-3 shadow-2xl">
-              <div className="flex aspect-[4/3] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-blue-100 via-slate-50 to-sky-100">
-                <div className="text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-2xl shadow-sm">
-                    🏘️
-                  </div>
-                  <p className="mt-4 text-sm font-semibold text-slate-700">
-                    Space Foto Lingkungan RT 02
-                  </p>
-                  <p className="mt-1 max-w-xs text-xs leading-5 text-slate-500">
-                    Bisa diganti dengan foto gapura, jalan lingkungan, pos
-                    warga, atau suasana Kampung Pasawahan.
-                  </p>
+              {landingContent.heroImageUrl ? (
+                <div className="aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-slate-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={landingContent.heroImageUrl}
+                    alt="Foto lingkungan RT 02"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-              </div>
+              ) : (
+                <div className="flex aspect-[4/3] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-blue-100 via-slate-50 to-sky-100">
+                  <div className="text-center">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-2xl shadow-sm">
+                      🏘️
+                    </div>
+                    <p className="mt-4 text-sm font-semibold text-slate-700">
+                      Space Foto Lingkungan RT 02
+                    </p>
+                    <p className="mt-1 max-w-xs text-xs leading-5 text-slate-500">
+                      Bisa diganti dengan foto gapura, jalan lingkungan, pos
+                      warga, atau suasana Kampung Pasawahan.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -297,7 +312,6 @@ export default async function HomePage() {
 
           <div className="space-y-5 text-base leading-8 text-slate-600">
             <p>{landingContent.aboutDescription1}</p>
-
             <p>{landingContent.aboutDescription2}</p>
           </div>
         </div>
@@ -340,17 +354,29 @@ export default async function HomePage() {
 
           <div className="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div className="overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-3 shadow-sm">
-              <div className="flex aspect-[16/10] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-blue-100">
-                <div className="text-center">
-                  <div className="text-4xl">🛣️</div>
-                  <p className="mt-3 text-sm font-semibold text-slate-700">
-                    Space Foto Area Kampung Pasawahan
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Tempat untuk foto jalan, gang, fasilitas, atau lingkungan RT.
-                  </p>
+              {landingContent.areaImageUrl ? (
+                <div className="aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-slate-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={landingContent.areaImageUrl}
+                    alt="Foto area Kampung Pasawahan"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-              </div>
+              ) : (
+                <div className="flex aspect-[16/10] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-blue-100">
+                  <div className="text-center">
+                    <div className="text-4xl">🛣️</div>
+                    <p className="mt-3 text-sm font-semibold text-slate-700">
+                      Space Foto Area Kampung Pasawahan
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Tempat untuk foto jalan, gang, fasilitas, atau lingkungan
+                      RT.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="rounded-[2rem] border border-blue-100 bg-white p-6 shadow-sm">
@@ -427,8 +453,7 @@ export default async function HomePage() {
 
             <p className="max-w-md text-sm leading-7 text-slate-600">
               Bagian ini dapat digunakan untuk menampilkan pengumuman penting,
-              agenda kegiatan, dan informasi lingkungan RT 02 Kampung
-              Pasawahan.
+              agenda kegiatan, dan informasi lingkungan RT 02 Kampung Pasawahan.
             </p>
           </div>
 

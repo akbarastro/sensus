@@ -5,10 +5,12 @@ type LandingContentPayload = {
   heroBadge?: string;
   heroTitle?: string;
   heroDescription?: string;
+  heroImageUrl?: string;
   aboutLabel?: string;
   aboutTitle?: string;
   aboutDescription1?: string;
   aboutDescription2?: string;
+  areaImageUrl?: string;
   ctaTitle?: string;
   ctaDescription?: string;
 };
@@ -17,18 +19,36 @@ function cleanText(value?: string) {
   return value?.trim() || "";
 }
 
+function cleanUrl(value?: string) {
+  const url = value?.trim() || "";
+
+  if (!url) return "";
+
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("/")
+  ) {
+    return url;
+  }
+
+  return "";
+}
+
 const defaultLandingContent = {
   id: 1,
   heroBadge: "Selamat Datang di RT 02 Kampung Pasawahan",
   heroTitle: "Lingkungan warga yang rukun, tertib, dan saling peduli.",
   heroDescription:
     "Halaman informasi warga RT 02 Kampung Pasawahan, Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Website ini menjadi media informasi lingkungan, kegiatan warga, pengumuman, dan dokumentasi kebersamaan warga.",
+  heroImageUrl: "",
   aboutLabel: "Tentang Wilayah",
   aboutTitle: "RT 02 Kampung Pasawahan, wilayah warga di Kelurahan Sayati.",
   aboutDescription1:
     "RT 02 Kampung Pasawahan berada di wilayah Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Lingkungan ini menjadi tempat warga beraktivitas, berkomunikasi, dan membangun kehidupan sosial yang saling mendukung.",
   aboutDescription2:
     "Dengan semangat kebersamaan, warga dan pengurus RT berupaya menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam kegiatan sosial dan administrasi warga.",
+  areaImageUrl: "",
   ctaTitle: "Punya informasi atau perubahan data warga?",
   ctaDescription:
     "Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk menyampaikan informasi penting, perubahan data keluarga, atau agenda kegiatan warga.",
@@ -68,10 +88,12 @@ export async function PUT(request: Request) {
     const heroBadge = cleanText(body.heroBadge);
     const heroTitle = cleanText(body.heroTitle);
     const heroDescription = cleanText(body.heroDescription);
+    const heroImageUrl = cleanUrl(body.heroImageUrl);
     const aboutLabel = cleanText(body.aboutLabel);
     const aboutTitle = cleanText(body.aboutTitle);
     const aboutDescription1 = cleanText(body.aboutDescription1);
     const aboutDescription2 = cleanText(body.aboutDescription2);
+    const areaImageUrl = cleanUrl(body.areaImageUrl);
     const ctaTitle = cleanText(body.ctaTitle);
     const ctaDescription = cleanText(body.ctaDescription);
 
@@ -113,10 +135,12 @@ export async function PUT(request: Request) {
         heroBadge,
         heroTitle,
         heroDescription,
+        heroImageUrl,
         aboutLabel,
         aboutTitle,
         aboutDescription1,
         aboutDescription2,
+        areaImageUrl,
         ctaTitle,
         ctaDescription,
       },
@@ -125,10 +149,12 @@ export async function PUT(request: Request) {
         heroBadge,
         heroTitle,
         heroDescription,
+        heroImageUrl,
         aboutLabel,
         aboutTitle,
         aboutDescription1,
         aboutDescription2,
+        areaImageUrl,
         ctaTitle,
         ctaDescription,
       },

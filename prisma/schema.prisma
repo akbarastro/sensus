@@ -52,10 +52,12 @@ model LandingContent {
   heroBadge         String   @default("")
   heroTitle         String   @default("")
   heroDescription   String   @default("")
+  heroImageUrl      String   @default("")
   aboutLabel        String   @default("")
   aboutTitle        String   @default("")
   aboutDescription1 String   @default("")
   aboutDescription2 String   @default("")
+  areaImageUrl      String   @default("")
   ctaTitle          String   @default("")
   ctaDescription    String   @default("")
   updatedAt         DateTime @updatedAt

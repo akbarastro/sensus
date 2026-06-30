@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 
 type LandingContent = {
@@ -8,10 +8,12 @@ type LandingContent = {
   heroBadge: string;
   heroTitle: string;
   heroDescription: string;
+  heroImageUrl: string;
   aboutLabel: string;
   aboutTitle: string;
   aboutDescription1: string;
   aboutDescription2: string;
+  areaImageUrl: string;
   ctaTitle: string;
   ctaDescription: string;
 };
@@ -27,21 +29,28 @@ const initialForm = {
   heroTitle: "Lingkungan warga yang rukun, tertib, dan saling peduli.",
   heroDescription:
     "Halaman informasi warga RT 02 Kampung Pasawahan, Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Website ini menjadi media informasi lingkungan, kegiatan warga, pengumuman, dan dokumentasi kebersamaan warga.",
+  heroImageUrl: "",
   aboutLabel: "Tentang Wilayah",
   aboutTitle: "RT 02 Kampung Pasawahan, wilayah warga di Kelurahan Sayati.",
   aboutDescription1:
     "RT 02 Kampung Pasawahan berada di wilayah Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Lingkungan ini menjadi tempat warga beraktivitas, berkomunikasi, dan membangun kehidupan sosial yang saling mendukung.",
   aboutDescription2:
     "Dengan semangat kebersamaan, warga dan pengurus RT berupaya menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam kegiatan sosial dan administrasi warga.",
+  areaImageUrl: "",
   ctaTitle: "Punya informasi atau perubahan data warga?",
   ctaDescription:
     "Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk menyampaikan informasi penting, perubahan data keluarga, atau agenda kegiatan warga.",
 };
 
 export default function AdminLandingPage() {
+  const heroImageInputRef = useRef<HTMLInputElement | null>(null);
+  const areaImageInputRef = useRef<HTMLInputElement | null>(null);
+
   const [form, setForm] = useState(initialForm);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingHero, setIsUploadingHero] = useState(false);
+  const [isUploadingArea, setIsUploadingArea] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -66,10 +75,12 @@ export default function AdminLandingPage() {
             heroBadge: result.data.heroBadge || "",
             heroTitle: result.data.heroTitle || "",
             heroDescription: result.data.heroDescription || "",
+            heroImageUrl: result.data.heroImageUrl || "",
             aboutLabel: result.data.aboutLabel || "",
             aboutTitle: result.data.aboutTitle || "",
             aboutDescription1: result.data.aboutDescription1 || "",
             aboutDescription2: result.data.aboutDescription2 || "",
+            areaImageUrl: result.data.areaImageUrl || "",
             ctaTitle: result.data.ctaTitle || "",
             ctaDescription: result.data.ctaDescription || "",
           });
@@ -100,6 +111,67 @@ export default function AdminLandingPage() {
     setForm((prevForm) => ({
       ...prevForm,
       [name]: value,
+    }));
+  };
+
+  const handleUploadImage = async (
+    file: File,
+    fieldName: "heroImageUrl" | "areaImageUrl",
+  ) => {
+    const setUploading =
+      fieldName === "heroImageUrl" ? setIsUploadingHero : setIsUploadingArea;
+
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result: {
+        success: boolean;
+        message?: string;
+        url?: string;
+      } = await response.json();
+
+      if (!response.ok || !result.success || !result.url) {
+        alert(result.message || "Gagal upload gambar");
+        return;
+      }
+
+      setForm((prevForm) => ({
+        ...prevForm,
+        [fieldName]: result.url || "",
+      }));
+
+      alert("Gambar berhasil diupload. Jangan lupa klik Simpan Konten.");
+    } catch {
+      alert("Gagal upload gambar");
+    } finally {
+      setUploading(false);
+
+      if (fieldName === "heroImageUrl" && heroImageInputRef.current) {
+        heroImageInputRef.current.value = "";
+      }
+
+      if (fieldName === "areaImageUrl" && areaImageInputRef.current) {
+        areaImageInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemoveImage = (fieldName: "heroImageUrl" | "areaImageUrl") => {
+    const confirmRemove = confirm("Yakin ingin menghapus gambar ini?");
+
+    if (!confirmRemove) return;
+
+    setForm((prevForm) => ({
+      ...prevForm,
+      [fieldName]: "",
     }));
   };
 
@@ -140,7 +212,7 @@ export default function AdminLandingPage() {
   return (
     <AdminShell
       title="Konten Landing Page"
-      description="Atur teks utama landing page publik RT 02 Kampung Pasawahan."
+      description="Atur teks dan gambar utama landing page publik RT 02 Kampung Pasawahan."
     >
       {isLoading ? (
         <div className="rounded-xl bg-white p-8 text-center text-slate-500 shadow">
@@ -202,6 +274,72 @@ export default function AdminLandingPage() {
                       placeholder="Masukkan deskripsi hero"
                       className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500"
                     />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      Gambar Hero
+                    </label>
+
+                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
+                      <input
+                        ref={heroImageInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        disabled={isUploadingHero}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+
+                          if (file) {
+                            void handleUploadImage(file, "heroImageUrl");
+                          }
+                        }}
+                        className="hidden"
+                      />
+
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">
+                            Upload gambar hero
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-slate-500">
+                            Rekomendasi 1280x960 px atau 1200x900 px. Format
+                            JPG, PNG, WEBP. Maksimal 2MB.
+                          </p>
+
+                          {form.heroImageUrl ? (
+                            <p className="mt-2 text-xs font-semibold text-blue-600">
+                              Gambar hero sudah terupload.
+                            </p>
+                          ) : (
+                            <p className="mt-2 text-xs text-slate-500">
+                              Belum ada gambar hero.
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={isUploadingHero}
+                            onClick={() => heroImageInputRef.current?.click()}
+                            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isUploadingHero ? "Mengupload..." : "Upload Gambar"}
+                          </button>
+
+                          {form.heroImageUrl ? (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage("heroImageUrl")}
+                              className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                            >
+                              Hapus Gambar
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -266,6 +404,72 @@ export default function AdminLandingPage() {
                       className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500"
                     />
                   </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      Gambar Area Lingkungan
+                    </label>
+
+                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
+                      <input
+                        ref={areaImageInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        disabled={isUploadingArea}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+
+                          if (file) {
+                            void handleUploadImage(file, "areaImageUrl");
+                          }
+                        }}
+                        className="hidden"
+                      />
+
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">
+                            Upload gambar area lingkungan
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-slate-500">
+                            Rekomendasi 16:10 atau 16:9. Format JPG, PNG, WEBP.
+                            Maksimal 2MB.
+                          </p>
+
+                          {form.areaImageUrl ? (
+                            <p className="mt-2 text-xs font-semibold text-blue-600">
+                              Gambar area sudah terupload.
+                            </p>
+                          ) : (
+                            <p className="mt-2 text-xs text-slate-500">
+                              Belum ada gambar area.
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={isUploadingArea}
+                            onClick={() => areaImageInputRef.current?.click()}
+                            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isUploadingArea ? "Mengupload..." : "Upload Gambar"}
+                          </button>
+
+                          {form.areaImageUrl ? (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage("areaImageUrl")}
+                              className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                            >
+                              Hapus Gambar
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </section>
 
@@ -309,7 +513,7 @@ export default function AdminLandingPage() {
             <div className="mt-6 flex justify-end">
               <button
                 type="submit"
-                disabled={isSaving}
+                disabled={isSaving || isUploadingHero || isUploadingArea}
                 className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? "Menyimpan..." : "Simpan Konten"}
@@ -335,6 +539,17 @@ export default function AdminLandingPage() {
                   {form.heroDescription ||
                     "Deskripsi hero akan muncul di sini."}
                 </p>
+
+                {form.heroImageUrl ? (
+                  <div className="mt-4 overflow-hidden rounded-2xl bg-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={form.heroImageUrl}
+                      alt="Preview hero"
+                      className="h-40 w-full object-contain"
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="rounded-2xl border border-slate-200 p-5">
@@ -348,6 +563,17 @@ export default function AdminLandingPage() {
                   {form.aboutDescription1 ||
                     "Deskripsi tentang akan muncul di sini."}
                 </p>
+
+                {form.areaImageUrl ? (
+                  <div className="mt-4 overflow-hidden rounded-2xl bg-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={form.areaImageUrl}
+                      alt="Preview area"
+                      className="h-40 w-full object-contain"
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="rounded-2xl bg-blue-600 p-5 text-white">
