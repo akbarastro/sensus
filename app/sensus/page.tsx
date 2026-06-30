@@ -1103,18 +1103,6 @@ export default function SensusPage() {
               <div>: ${escapeHtml(latestWilayahText.rtRw)}</div>
             </section>
 
-            <section class="summary">
-              <div class="summary-card">
-                <p class="summary-label">Total Data:</p>
-                <p class="summary-value">${sortedData.length}</p>
-              </div>
-
-              <div class="summary-card">
-                <p class="summary-label">Total Warga Terdaftar:</p>
-                <p class="summary-value">${dataWarga.length}</p>
-              </div>
-            </section>
-
             <table>
               <thead>
                 <tr>
