@@ -1,5 +1,8 @@
 import Link from "next/link";
 import LandingPopupBanner from "@/components/landing/LandingPopupBanner";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 const rtProfile = {
   rt: "RT 02",
@@ -8,6 +11,41 @@ const rtProfile = {
   kecamatan: "Kecamatan Margahayu",
   kabupaten: "Kabupaten Bandung",
 };
+
+const defaultLandingContent = {
+  heroBadge: "Selamat Datang di RT 02 Kampung Pasawahan",
+  heroTitle: "Lingkungan warga yang rukun, tertib, dan saling peduli.",
+  heroDescription:
+    "Halaman informasi warga RT 02 Kampung Pasawahan, Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Website ini menjadi media informasi lingkungan, kegiatan warga, pengumuman, dan dokumentasi kebersamaan warga.",
+  aboutLabel: "Tentang Wilayah",
+  aboutTitle: "RT 02 Kampung Pasawahan, wilayah warga di Kelurahan Sayati.",
+  aboutDescription1:
+    "RT 02 Kampung Pasawahan berada di wilayah Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Lingkungan ini menjadi tempat warga beraktivitas, berkomunikasi, dan membangun kehidupan sosial yang saling mendukung.",
+  aboutDescription2:
+    "Dengan semangat kebersamaan, warga dan pengurus RT berupaya menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam kegiatan sosial dan administrasi warga.",
+  ctaTitle: "Punya informasi atau perubahan data warga?",
+  ctaDescription:
+    "Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk menyampaikan informasi penting, perubahan data keluarga, atau agenda kegiatan warga.",
+};
+
+async function getLandingContent() {
+  try {
+    const content = await prisma.landingContent.upsert({
+      where: {
+        id: 1,
+      },
+      update: {},
+      create: {
+        id: 1,
+        ...defaultLandingContent,
+      },
+    });
+
+    return content;
+  } catch {
+    return defaultLandingContent;
+  }
+}
 
 const highlights = [
   {
@@ -103,10 +141,13 @@ const galleryItems = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const landingContent = await getLandingContent();
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <LandingPopupBanner />
+
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-3">
@@ -157,19 +198,15 @@ export default function HomePage() {
         <div className="relative mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <div className="mb-5 inline-flex rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-              Selamat Datang di {rtProfile.rt} {rtProfile.kampung}
+              {landingContent.heroBadge}
             </div>
 
             <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-              Lingkungan warga yang rukun, tertib, dan saling peduli.
+              {landingContent.heroTitle}
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-              Halaman informasi warga {rtProfile.rt} {rtProfile.kampung},{" "}
-              {rtProfile.kelurahan}, {rtProfile.kecamatan},{" "}
-              {rtProfile.kabupaten}. Website ini menjadi media informasi
-              lingkungan, kegiatan warga, pengumuman, dan dokumentasi
-              kebersamaan warga.
+              {landingContent.heroDescription}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -251,28 +288,17 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div>
             <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
-              Tentang Wilayah
+              {landingContent.aboutLabel}
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              {rtProfile.rt} {rtProfile.kampung}, wilayah warga di{" "}
-              {rtProfile.kelurahan}.
+              {landingContent.aboutTitle}
             </h2>
           </div>
 
           <div className="space-y-5 text-base leading-8 text-slate-600">
-            <p>
-              {rtProfile.rt} {rtProfile.kampung} berada di wilayah{" "}
-              {rtProfile.kelurahan}, {rtProfile.kecamatan},{" "}
-              {rtProfile.kabupaten}. Lingkungan ini menjadi tempat warga
-              beraktivitas, berkomunikasi, dan membangun kehidupan sosial yang
-              saling mendukung.
-            </p>
+            <p>{landingContent.aboutDescription1}</p>
 
-            <p>
-              Dengan semangat kebersamaan, warga dan pengurus RT berupaya
-              menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam
-              kegiatan sosial dan administrasi warga.
-            </p>
+            <p>{landingContent.aboutDescription2}</p>
           </div>
         </div>
       </section>
@@ -450,7 +476,9 @@ export default function HomePage() {
               >
                 <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-slate-50 to-blue-100">
                   <div className="text-center">
-                    <div className="text-4xl">{index % 2 === 0 ? "📸" : "🏡"}</div>
+                    <div className="text-4xl">
+                      {index % 2 === 0 ? "📸" : "🏡"}
+                    </div>
                     <p className="mt-3 text-xs font-semibold text-slate-500">
                       Space Gambar
                     </p>
@@ -472,13 +500,9 @@ export default function HomePage() {
       <section className="bg-blue-600 px-6 py-16 text-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-3xl font-bold">
-              Punya informasi atau perubahan data warga?
-            </h2>
+            <h2 className="text-3xl font-bold">{landingContent.ctaTitle}</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-blue-50">
-              Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk
-              menyampaikan informasi penting, perubahan data keluarga, atau
-              agenda kegiatan warga.
+              {landingContent.ctaDescription}
             </p>
           </div>
 
