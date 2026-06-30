@@ -824,18 +824,6 @@ export default function SensusPage() {
     minute: "2-digit",
   });
 
-  const totalLakiLaki = sortedData.filter(
-    (item) => item.jenisKelamin === "Laki-laki",
-  ).length;
-
-  const totalPerempuan = sortedData.filter(
-    (item) => item.jenisKelamin === "Perempuan",
-  ).length;
-
-  const totalBelumLengkap = sortedData.filter(
-    (item) => !isDataComplete(item),
-  ).length;
-
   const printRows = sortedData
     .map((item, index) => {
       const complete = isDataComplete(item) ? "Lengkap" : "Belum Lengkap";
