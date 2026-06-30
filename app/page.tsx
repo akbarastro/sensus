@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LandingPopupBanner from "@/components/landing/LandingPopupBanner";
 
 const rtProfile = {
   rt: "RT 02",
@@ -105,6 +106,7 @@ const galleryItems = [
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
+      <LandingPopupBanner />
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-3">
