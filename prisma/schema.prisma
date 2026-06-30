@@ -46,3 +46,18 @@ model LandingBanner {
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
 }
+
+model LandingContent {
+  id                Int      @id
+  heroBadge         String   @default("")
+  heroTitle         String   @default("")
+  heroDescription   String   @default("")
+  aboutLabel        String   @default("")
+  aboutTitle        String   @default("")
+  aboutDescription1 String   @default("")
+  aboutDescription2 String   @default("")
+  ctaTitle          String   @default("")
+  ctaDescription    String   @default("")
+  updatedAt         DateTime @updatedAt
+  createdAt         DateTime @default(now())
+}
