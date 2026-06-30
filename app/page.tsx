@@ -1,43 +1,56 @@
 import Link from "next/link";
 
-const features = [
+const highlights = [
   {
-    title: "Data Warga Terpusat",
+    title: "Lingkungan Rukun",
     description:
-      "Seluruh data warga, NIK, nomor KK, alamat, dan status keluarga tersimpan dalam satu dashboard yang rapi.",
+      "Mendorong hubungan warga yang harmonis, saling peduli, dan aktif dalam kegiatan lingkungan.",
   },
   {
-    title: "Akses Aman",
+    title: "Keamanan Bersama",
     description:
-      "Dashboard hanya dapat diakses oleh admin yang memiliki username dan password khusus.",
+      "Warga bersama pengurus menjaga ketertiban dan keamanan lingkungan secara gotong royong.",
   },
   {
-    title: "Import & Export Data",
+    title: "Kegiatan Warga",
     description:
-      "Admin dapat melakukan import CSV, export CSV, backup data, restore data, dan print laporan warga.",
+      "Berbagai kegiatan rutin dilakukan untuk mempererat silaturahmi dan menjaga kebersihan lingkungan.",
   },
-  {
-    title: "Rekap Cepat",
-    description:
-      "Statistik warga seperti total warga, laki-laki, perempuan, balita, lansia, dan data belum lengkap dapat dilihat dengan cepat.",
-  },
+];
+
+const facilities = [
+  "Pos ronda lingkungan",
+  "Area kerja bakti warga",
+  "Jalur akses lingkungan",
+  "Informasi pengumuman warga",
+  "Koordinasi pengurus RT",
+  "Pendataan administrasi warga",
 ];
 
 const schedules = [
   {
     day: "Minggu Pertama",
     title: "Kerja Bakti Lingkungan",
-    description: "Kegiatan kebersihan lingkungan RT dan pengecekan fasilitas umum.",
+    description:
+      "Kegiatan membersihkan area sekitar rumah, saluran air, dan fasilitas umum lingkungan.",
   },
   {
     day: "Minggu Kedua",
     title: "Rapat Pengurus RT",
-    description: "Koordinasi pengurus terkait administrasi, keamanan, dan kegiatan warga.",
+    description:
+      "Koordinasi pengurus untuk membahas kegiatan warga, keamanan, dan kebutuhan lingkungan.",
   },
   {
     day: "Minggu Ketiga",
     title: "Pendataan Warga",
-    description: "Pembaruan data warga, KK, status domisili, dan data administrasi lainnya.",
+    description:
+      "Pembaruan informasi warga, keluarga baru, pindahan, dan data administrasi lainnya.",
+  },
+  {
+    day: "Kondisional",
+    title: "Kegiatan Sosial Warga",
+    description:
+      "Kegiatan sosial, bantuan warga, kunjungan, dan agenda bersama sesuai kebutuhan lingkungan.",
   },
 ];
 
@@ -52,13 +65,32 @@ const news = [
     category: "Kegiatan",
     title: "Kerja Bakti Bulanan",
     description:
-      "Kegiatan kerja bakti akan dilaksanakan secara berkala untuk menjaga kebersihan lingkungan.",
+      "Kerja bakti lingkungan dilakukan secara berkala untuk menjaga kebersihan dan kenyamanan bersama.",
   },
   {
     category: "Keamanan",
-    title: "Peningkatan Keamanan Lingkungan",
+    title: "Peningkatan Ketertiban Lingkungan",
     description:
-      "Pengurus RT mendorong warga untuk aktif menjaga keamanan dan melaporkan hal mencurigakan.",
+      "Warga diharapkan aktif menjaga keamanan sekitar dan segera melapor jika ada hal mencurigakan.",
+  },
+];
+
+const galleryItems = [
+  {
+    title: "Kegiatan Warga",
+    description: "Dokumentasi kegiatan warga dan kebersamaan lingkungan.",
+  },
+  {
+    title: "Lingkungan RT",
+    description: "Suasana lingkungan tempat tinggal warga.",
+  },
+  {
+    title: "Kerja Bakti",
+    description: "Kegiatan kebersihan dan gotong royong warga.",
+  },
+  {
+    title: "Rapat Warga",
+    description: "Koordinasi dan musyawarah untuk kepentingan bersama.",
   },
 ];
 
@@ -68,152 +100,135 @@ export default function HomePage() {
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-sm font-bold text-white">
               RT
             </div>
 
             <div>
               <p className="text-sm font-bold leading-none text-slate-950">
-                Sensus Warga RT
+                Informasi Warga RT
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                Sistem Administrasi Warga
+                Lingkungan, Kegiatan, dan Pengumuman
               </p>
             </div>
           </Link>
 
           <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
-            <a href="#tentang" className="hover:text-blue-600">
+            <a href="#tentang" className="hover:text-emerald-600">
               Tentang
             </a>
-            <a href="#keunggulan" className="hover:text-blue-600">
-              Keunggulan
+            <a href="#lingkungan" className="hover:text-emerald-600">
+              Lingkungan
             </a>
-            <a href="#jadwal" className="hover:text-blue-600">
+            <a href="#jadwal" className="hover:text-emerald-600">
               Jadwal
             </a>
-            <a href="#berita" className="hover:text-blue-600">
+            <a href="#berita" className="hover:text-emerald-600">
               Berita
+            </a>
+            <a href="#galeri" className="hover:text-emerald-600">
+              Galeri
             </a>
           </nav>
 
           <Link
             href="/login"
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
           >
-            Login Admin
+            Login Pengurus
           </Link>
         </div>
       </header>
 
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-slate-100" />
+      <section className="relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-slate-100" />
 
-        <div className="relative mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="relative mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
-            <div className="mb-5 inline-flex rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-              Dashboard Digital untuk Administrasi Warga RT
+            <div className="mb-5 inline-flex rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+              Selamat Datang di Lingkungan RT Kami
             </div>
 
             <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-              Kelola data warga RT dengan lebih rapi, aman, dan mudah dipantau.
+              Membangun lingkungan yang rukun, aman, bersih, dan saling peduli.
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-              Sistem Sensus Warga RT membantu pengurus dalam mengelola data
-              warga, kartu keluarga, status domisili, laporan administrasi,
-              serta rekap data lingkungan secara digital.
+              Website ini menjadi pusat informasi warga untuk mengenal lingkungan
+              RT, melihat agenda kegiatan, mengikuti pengumuman terbaru, dan
+              mempererat komunikasi antarwarga.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/login"
-                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-              >
-                Masuk Dashboard
-              </Link>
-
               <a
                 href="#tentang"
+                className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+              >
+                Lihat Profil RT
+              </a>
+
+              <a
+                href="#berita"
                 className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
               >
-                Lihat Informasi RT
+                Baca Pengumuman
               </a>
             </div>
 
             <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="text-2xl font-bold text-slate-950">Rukun</p>
+                <p className="mt-1 text-xs text-slate-500">Antarwarga</p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <p className="text-2xl font-bold text-slate-950">Aman</p>
-                <p className="mt-1 text-xs text-slate-500">Akses admin</p>
+                <p className="mt-1 text-xs text-slate-500">Lingkungan</p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p className="text-2xl font-bold text-slate-950">Rapi</p>
-                <p className="mt-1 text-xs text-slate-500">Data terstruktur</p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p className="text-2xl font-bold text-slate-950">Cepat</p>
-                <p className="mt-1 text-xs text-slate-500">Rekap instan</p>
+                <p className="text-2xl font-bold text-slate-950">Bersih</p>
+                <p className="mt-1 text-xs text-slate-500">Gotong royong</p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl">
-            <div className="rounded-[1.5rem] bg-slate-950 p-5 text-white">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div>
-                  <p className="text-sm text-slate-400">Preview Dashboard</p>
-                  <h2 className="mt-1 text-xl font-bold">Sensus Warga RT</h2>
-                </div>
-
-                <div className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">
-                  Online
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <p className="text-sm text-slate-300">Total Warga</p>
-                  <h3 className="mt-2 text-3xl font-bold">Data</h3>
-                </div>
-
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <p className="text-sm text-slate-300">Kartu Keluarga</p>
-                  <h3 className="mt-2 text-3xl font-bold">KK</h3>
-                </div>
-
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <p className="text-sm text-slate-300">Laporan</p>
-                  <h3 className="mt-2 text-3xl font-bold">Print</h3>
-                </div>
-
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <p className="text-sm text-slate-300">Backup</p>
-                  <h3 className="mt-2 text-3xl font-bold">JSON</h3>
+          <div className="grid gap-4">
+            <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-3 shadow-2xl">
+              <div className="flex aspect-[4/3] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-emerald-100 via-slate-100 to-blue-100">
+                <div className="text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-2xl shadow-sm">
+                    🏘️
+                  </div>
+                  <p className="mt-4 text-sm font-semibold text-slate-700">
+                    Space Foto Lingkungan RT
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Bisa diganti dengan foto gapura, jalan lingkungan, atau
+                    kegiatan warga.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 space-y-3">
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <p className="font-semibold text-slate-900">
-                  Administrasi lebih mudah
-                </p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Pengurus dapat mengelola data warga tanpa harus bergantung
-                  pada catatan manual yang rawan tercecer.
-                </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+                <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-slate-100">
+                  <div className="text-center text-sm text-slate-500">
+                    📷
+                    <p className="mt-2 font-semibold">Foto Kegiatan</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <p className="font-semibold text-slate-900">
-                  Laporan siap dicetak
-                </p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Data warga dapat dicetak menjadi laporan administrasi RT yang
-                  lebih formal.
-                </p>
+              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+                <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-emerald-50">
+                  <div className="text-center text-sm text-slate-500">
+                    🌿
+                    <p className="mt-2 font-semibold">Foto Lingkungan</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -221,64 +236,98 @@ export default function HomePage() {
       </section>
 
       <section id="tentang" className="bg-white px-6 py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
+            <p className="text-sm font-bold uppercase tracking-wider text-emerald-600">
               Tentang RT
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              Lingkungan RT yang tertib dimulai dari data warga yang rapi.
+              Lingkungan tempat warga saling mengenal, membantu, dan menjaga.
             </h2>
           </div>
 
           <div className="space-y-5 text-base leading-8 text-slate-600">
             <p>
-              Rukun Tetangga memiliki peran penting dalam menjaga ketertiban,
-              keamanan, dan administrasi warga. Data warga yang rapi membantu
-              pengurus mengambil keputusan lebih cepat dan tepat.
+              Rukun Tetangga menjadi ruang terdekat bagi warga untuk saling
+              berkoordinasi, menyampaikan informasi, menjaga keamanan, serta
+              membangun kebersamaan dalam kehidupan sehari-hari.
             </p>
 
             <p>
-              Melalui sistem ini, proses pendataan warga, pengecekan status
-              keluarga, pencarian data, hingga penyusunan laporan dapat dilakukan
-              dengan lebih mudah dan terpusat.
+              Melalui semangat gotong royong, warga bersama pengurus RT
+              berupaya menciptakan lingkungan yang nyaman, tertib, bersih, dan
+              responsif terhadap kebutuhan warga.
             </p>
           </div>
         </div>
       </section>
 
-      <section id="keunggulan" className="bg-slate-50 px-6 py-20">
+      <section id="lingkungan" className="bg-slate-50 px-6 py-20">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
-              Keunggulan
+            <p className="text-sm font-bold uppercase tracking-wider text-emerald-600">
+              Keunggulan Lingkungan
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              Dibuat untuk membantu pekerjaan administrasi RT.
+              Nilai utama yang dijaga bersama warga.
             </h2>
             <p className="mt-4 text-base leading-7 text-slate-600">
-              Sistem ini dirancang agar pengurus dapat mengelola data dengan
-              lebih efisien, tanpa mengorbankan keamanan akses.
+              Lingkungan yang baik terbentuk dari komunikasi warga, kepedulian,
+              dan partisipasi aktif dalam setiap kegiatan.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature, index) => (
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {highlights.map((item) => (
               <div
-                key={feature.title}
+                key={item.title}
                 className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-sm font-bold text-blue-700">
-                  {index + 1}
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl">
+                  ✓
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-slate-950">
-                  {feature.title}
+                <h3 className="text-xl font-bold text-slate-950">
+                  {item.title}
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600">
-                  {feature.description}
+                  {item.description}
                 </p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-3 shadow-sm">
+              <div className="flex aspect-[16/10] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-slate-100 to-emerald-100">
+                <div className="text-center">
+                  <div className="text-4xl">🛣️</div>
+                  <p className="mt-3 text-sm font-semibold text-slate-700">
+                    Space Foto Area Lingkungan
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-2xl font-bold text-slate-950">
+                Fasilitas & Informasi Lingkungan
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                Beberapa informasi umum yang dapat ditampilkan untuk warga agar
+                lebih mudah mengenal lingkungan RT.
+              </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {facilities.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -286,15 +335,15 @@ export default function HomePage() {
       <section id="jadwal" className="bg-white px-6 py-20">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
-              Jadwal RT
+            <p className="text-sm font-bold uppercase tracking-wider text-emerald-600">
+              Jadwal Kegiatan
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              Agenda kegiatan lingkungan.
+              Agenda rutin untuk menjaga kebersamaan warga.
             </h2>
             <p className="mt-4 text-base leading-7 text-slate-600">
-              Jadwal ini dapat digunakan sebagai informasi umum untuk warga dan
-              pengurus RT.
+              Jadwal dapat disesuaikan dengan kebutuhan lingkungan dan keputusan
+              bersama warga.
             </p>
           </div>
 
@@ -304,7 +353,7 @@ export default function HomePage() {
                 key={schedule.title}
                 className="rounded-3xl border border-slate-200 bg-slate-50 p-6"
               >
-                <p className="text-sm font-semibold text-blue-600">
+                <p className="text-sm font-semibold text-emerald-600">
                   {schedule.day}
                 </p>
                 <h3 className="mt-2 text-xl font-bold text-slate-950">
@@ -323,7 +372,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
+              <p className="text-sm font-bold uppercase tracking-wider text-emerald-600">
                 Berita & Pengumuman
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
@@ -332,8 +381,8 @@ export default function HomePage() {
             </div>
 
             <p className="max-w-md text-sm leading-7 text-slate-600">
-              Section ini dapat digunakan untuk menampilkan pengumuman penting,
-              kegiatan warga, dan informasi lingkungan.
+              Bagian ini dapat digunakan untuk menampilkan pengumuman penting,
+              agenda kegiatan, dan informasi lingkungan.
             </p>
           </div>
 
@@ -343,7 +392,7 @@ export default function HomePage() {
                 key={item.title}
                 className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
               >
-                <div className="mb-4 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                <div className="mb-4 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                   {item.category}
                 </div>
                 <h3 className="text-xl font-bold text-slate-950">
@@ -358,23 +407,65 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-blue-600 px-6 py-16 text-white">
+      <section id="galeri" className="bg-white px-6 py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-wider text-emerald-600">
+              Galeri Lingkungan
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+              Dokumentasi kegiatan dan suasana warga.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-slate-600">
+              Space ini bisa diisi dengan foto kegiatan RT, kerja bakti, rapat
+              warga, fasilitas lingkungan, atau momen kebersamaan lainnya.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {galleryItems.map((item, index) => (
+              <div
+                key={item.title}
+                className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+              >
+                <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-slate-100 to-emerald-50">
+                  <div className="text-center">
+                    <div className="text-4xl">{index % 2 === 0 ? "📸" : "🌱"}</div>
+                    <p className="mt-3 text-xs font-semibold text-slate-500">
+                      Space Gambar
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  <h3 className="font-bold text-slate-950">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-emerald-600 px-6 py-16 text-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-3xl font-bold">
-              Siap mengelola data warga dengan lebih rapi?
+              Punya informasi atau perubahan data warga?
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-blue-50">
-              Masuk ke dashboard admin untuk mengelola data sensus warga,
-              mencetak laporan, dan memperbarui informasi RT.
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50">
+              Silakan hubungi pengurus RT untuk menyampaikan informasi penting,
+              perubahan data keluarga, atau agenda kegiatan warga.
             </p>
           </div>
 
           <Link
             href="/login"
-            className="w-fit rounded-xl bg-white px-5 py-3 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-50"
+            className="w-fit rounded-xl bg-white px-5 py-3 text-sm font-semibold text-emerald-700 shadow-sm hover:bg-emerald-50"
           >
-            Login Dashboard
+            Login Pengurus
           </Link>
         </div>
       </section>
@@ -382,14 +473,15 @@ export default function HomePage() {
       <footer className="bg-slate-950 px-6 py-8 text-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-bold">Sensus Warga RT</p>
+            <p className="font-bold">Informasi Warga RT</p>
             <p className="mt-1 text-sm text-slate-400">
-              Sistem administrasi dan pendataan warga RT.
+              Media informasi lingkungan, kegiatan, dan pengumuman warga.
             </p>
           </div>
 
           <p className="text-sm text-slate-400">
-            © {new Date().getFullYear()} Sensus Warga RT. All rights reserved.
+            © {new Date().getFullYear()} Informasi Warga RT. All rights
+            reserved.
           </p>
         </div>
       </footer>
