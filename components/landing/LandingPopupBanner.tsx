@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type LandingBanner = {
@@ -120,17 +119,16 @@ export default function LandingPopupBanner() {
           ×
         </button>
 
-        <div className="aspect-video bg-gradient-to-br from-blue-100 via-white to-sky-100">
-          {banner.imageUrl ? (
-            <Image
-              src={banner.imageUrl}
-              alt={banner.title || "Banner popup"}
-              width={1280}
-              height={720}
-              className="h-full w-full object-cover"
-              priority
-            />
-          ) : (
+{banner.imageUrl ? (
+  <div className="aspect-video bg-slate-100">
+    <img
+      src={banner.imageUrl}
+      alt={banner.title || "Banner popup"}
+      className="h-full w-full object-contain"
+    />
+  </div>
+) : (
+          <div className="aspect-video bg-gradient-to-br from-blue-100 via-white to-sky-100">
             <div className="flex h-full items-center justify-center p-8">
               <div className="text-center">
                 <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-600 text-3xl shadow-lg">
@@ -152,8 +150,8 @@ export default function LandingPopupBanner() {
                 </p>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="p-6 sm:p-7">
           {banner.eyebrow ? (

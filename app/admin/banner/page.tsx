@@ -35,6 +35,7 @@ export default function AdminBannerPage() {
   const [form, setForm] = useState(initialForm);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -101,6 +102,42 @@ export default function AdminBannerPage() {
     }));
   };
 
+  const handleUploadImage = async (file: File) => {
+    try {
+      setIsUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result: {
+        success: boolean;
+        message?: string;
+        url?: string;
+      } = await response.json();
+
+      if (!response.ok || !result.success || !result.url) {
+        alert(result.message || "Gagal upload gambar");
+        return;
+      }
+
+      setForm((prevForm) => ({
+        ...prevForm,
+        imageUrl: result.url || "",
+      }));
+
+      alert("Gambar berhasil diupload. Jangan lupa klik Simpan Banner.");
+    } catch {
+      alert("Gagal upload gambar");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -146,7 +183,10 @@ export default function AdminBannerPage() {
         </div>
       ) : (
         <div className="grid gap-6 xl:grid-cols-[1fr_460px]">
-          <form onSubmit={handleSubmit} className="rounded-xl bg-white p-6 shadow">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-xl bg-white p-6 shadow"
+          >
             <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-semibold">Konten Banner</h2>
@@ -234,8 +274,41 @@ export default function AdminBannerPage() {
                   placeholder="https://... atau /nama-file.jpg"
                   className="w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500"
                 />
-                <p className="mt-1 text-xs text-slate-500">
-                  Boleh dikosongkan. Kalau diisi, gunakan gambar rasio 16:9.
+
+                <div className="mt-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Upload Gambar Banner
+                  </label>
+
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    disabled={isUploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+
+                      if (file) {
+                        void handleUploadImage(file);
+                      }
+                    }}
+                    className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  />
+
+                  <p className="mt-2 text-xs text-slate-500">
+                    Rekomendasi gambar 1280x720 px atau 1920x1080 px. Format
+                    JPG, PNG, WEBP. Maksimal 2MB.
+                  </p>
+
+                  {isUploading ? (
+                    <p className="mt-2 text-xs font-semibold text-blue-600">
+                      Mengupload gambar...
+                    </p>
+                  ) : null}
+                </div>
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Setelah upload berhasil, URL gambar akan otomatis terisi. Lalu
+                  klik Simpan Banner.
                 </p>
               </div>
 
@@ -288,11 +361,13 @@ export default function AdminBannerPage() {
             <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
               <div className="aspect-video bg-gradient-to-br from-blue-100 via-white to-sky-100">
                 {form.imageUrl ? (
-                  <img
-                    src={form.imageUrl}
-                    alt={form.title}
-                    className="h-full w-full object-cover"
-                  />
+                  <div className="aspect-video bg-slate-100">
+                    <img
+                      src={form.imageUrl}
+                      alt={form.title || "Preview banner"}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
                 ) : (
                   <div className="flex h-full items-center justify-center p-6">
                     <div className="text-center">
