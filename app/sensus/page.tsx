@@ -960,14 +960,14 @@ export default function SensusPage() {
             color: #374151;
           }
 
-          ..summary {
+          .summary {
           display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-  font-size: 11px;
-}
+          gap: 8px;
+          margin-bottom: 14px;
+          font-size: 11px;
+          }
 
-.summary-card {
+          .summary-card {
   border: 1px solid #d1d5db;
   border-radius: 6px;
   padding: 6px 10px;
@@ -1103,17 +1103,17 @@ export default function SensusPage() {
               <div>: ${escapeHtml(latestWilayahText.rtRw)}</div>
             </section>
 
-            <<section class="summary">
-  <div class="summary-card">
-    <p class="summary-label">Total Data:</p>
-    <p class="summary-value">${sortedData.length}</p>
-  </div>
+            <section class="summary">
+              <div class="summary-card">
+                <p class="summary-label">Total Data:</p>
+                <p class="summary-value">${sortedData.length}</p>
+              </div>
 
-  <div class="summary-card">
-    <p class="summary-label">Total Warga Terdaftar:</p>
-    <p class="summary-value">${dataWarga.length}</p>
-  </div>
-</section>
+              <div class="summary-card">
+                <p class="summary-label">Total Warga Terdaftar:</p>
+                <p class="summary-value">${dataWarga.length}</p>
+              </div>
+            </section>
 
             <table>
               <thead>
