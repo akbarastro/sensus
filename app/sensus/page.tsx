@@ -189,24 +189,23 @@ export default function SensusPage() {
   }, []);
 
   const fetchPengaturan = useCallback(async () => {
-    try {
-      const response = await fetch("/api/pengaturan", {
-        cache: "no-store",
-      });
+  try {
+    const response = await fetch("/api/pengaturan", {
+      cache: "no-store",
+    });
 
-      const result: ApiResponse<PengaturanRt> = await response.json();
+    const result: ApiResponse<PengaturanRt> = await response.json();
 
-      if (!response.ok || !result.success) {
-        return;
-      }
-
-      if (result.data) {
-        setPengaturan(result.data);
-      }
-    } catch {
-      // Pengaturan tidak wajib menghentikan dashboard.
+    if (!response.ok || !result.success || !result.data) {
+      return defaultPengaturan;
     }
-  }, []);
+
+    setPengaturan(result.data);
+    return result.data;
+  } catch {
+    return defaultPengaturan;
+  }
+}, []);
 
   useEffect(() => {
     let isActive = true;
@@ -802,214 +801,372 @@ export default function SensusPage() {
   };
 
   const handlePrintData = async () => {
-    if (sortedData.length === 0) {
-      alert("Tidak ada data untuk dicetak");
-      return;
-    }
+  if (sortedData.length === 0) {
+    alert("Tidak ada data untuk dicetak");
+    return;
+  }
 
-    await fetchPengaturan();
+  const latestPengaturan = await fetchPengaturan();
+  const latestWilayahText = getWilayahText(latestPengaturan);
 
-    const latestPengaturan = pengaturan;
-    const latestWilayahText = getWilayahText(latestPengaturan);
+  const printedAt = new Date();
+  const printedDate = printedAt.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 
-    const printRows = sortedData
-      .map((item, index) => {
-        const complete = isDataComplete(item) ? "Lengkap" : "Belum Lengkap";
+  const printedDateTime = printedAt.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-        return `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${escapeHtml(item.nama)}</td>
-            <td>${escapeHtml(item.tanggalLahir || "-")}</td>
-            <td>${escapeHtml(item.jenisKelamin || "-")}</td>
-            <td>${escapeHtml(item.nik)}</td>
-            <td>${escapeHtml(item.noKK)}</td>
-            <td>${escapeHtml(item.alamat || "-")}</td>
-            <td>${escapeHtml(item.statusKeluarga || "-")}</td>
-            <td>${escapeHtml(item.statusWarga || "-")}</td>
-            <td>${complete}</td>
-          </tr>
-        `;
-      })
-      .join("");
+  const totalLakiLaki = sortedData.filter(
+    (item) => item.jenisKelamin === "Laki-laki",
+  ).length;
 
-    const printWindow = window.open("", "_blank");
+  const totalPerempuan = sortedData.filter(
+    (item) => item.jenisKelamin === "Perempuan",
+  ).length;
 
-    if (!printWindow) {
-      alert("Popup print diblokir browser. Izinkan popup untuk mencetak data.");
-      return;
-    }
+  const totalBelumLengkap = sortedData.filter(
+    (item) => !isDataComplete(item),
+  ).length;
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Data Sensus Warga RT</title>
-          <style>
+  const printRows = sortedData
+    .map((item, index) => {
+      const complete = isDataComplete(item) ? "Lengkap" : "Belum Lengkap";
+
+      return `
+        <tr>
+          <td class="center">${index + 1}</td>
+          <td>${escapeHtml(item.nama)}</td>
+          <td class="center">${escapeHtml(item.tanggalLahir || "-")}</td>
+          <td class="center">${escapeHtml(item.jenisKelamin || "-")}</td>
+          <td>${escapeHtml(item.nik)}</td>
+          <td>${escapeHtml(item.noKK)}</td>
+          <td>${escapeHtml(item.alamat || "-")}</td>
+          <td>${escapeHtml(item.statusKeluarga || "-")}</td>
+          <td class="center">${escapeHtml(item.statusWarga || "-")}</td>
+          <td class="center">${complete}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  const printWindow = window.open("", "_blank");
+
+  if (!printWindow) {
+    alert("Popup print diblokir browser. Izinkan popup untuk mencetak data.");
+    return;
+  }
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title></title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 15mm 12mm 18mm 12mm;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          html,
+          body {
+            margin: 0;
+            padding: 0;
+            color: #111827;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+          }
+
+          body {
+            min-height: 100vh;
+          }
+
+          .page {
+            min-height: calc(100vh - 1px);
+            display: flex;
+            flex-direction: column;
+          }
+
+          .content {
+            flex: 1;
+          }
+
+          .kop {
+            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 3px double #111827;
+            margin-bottom: 16px;
+          }
+
+          .kop-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .kop-subtitle {
+            margin: 4px 0 0;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+          }
+
+          .kop-address {
+            margin-top: 6px;
+            color: #374151;
+            font-size: 12px;
+            line-height: 1.5;
+          }
+
+          .document-title {
+            margin: 18px 0 4px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: underline;
+          }
+
+          .document-subtitle {
+            margin: 0 0 16px;
+            text-align: center;
+            color: #374151;
+            font-size: 12px;
+          }
+
+          .meta {
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 4px 8px;
+            color: #111827;
+            font-size: 12px;
+          }
+
+          .meta-label {
+            color: #374151;
+          }
+
+          ..summary {
+          display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 11px;
+}
+
+.summary-card {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-label {
+  margin: 0;
+  color: #111827;
+  font-size: 11px;
+}
+
+.summary-value {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 9.5px;
+          }
+
+          th,
+          td {
+            border: 1px solid #cbd5e1;
+            padding: 6px;
+            text-align: left;
+            vertical-align: top;
+            word-break: break-word;
+          }
+
+          th {
+            background: #f1f5f9;
+            font-weight: 700;
+            text-align: center;
+          }
+
+          .center {
+            text-align: center;
+          }
+
+          .footer {
+            margin-top: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 24px;
+          }
+
+          .footer-left {
+            color: #4b5563;
+            font-size: 11px;
+            line-height: 1.5;
+          }
+
+          .signature {
+            width: 230px;
+            text-align: center;
+            font-size: 12px;
+          }
+
+          .signature p {
+            margin: 0 0 5px;
+          }
+
+          .signature-space {
+            height: 72px;
+          }
+
+          .signature-name {
+            font-weight: 700;
+            text-decoration: underline;
+          }
+
+          .print-help {
+            margin-top: 4px;
+            color: #9ca3af;
+            font-size: 9px;
+          }
+
+          @media print {
             body {
-              font-family: Arial, sans-serif;
-              padding: 24px;
-              color: #111827;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
             }
 
-            h1 {
-              margin: 0;
-              font-size: 22px;
-              text-align: center;
-              text-transform: uppercase;
+            .print-help {
+              display: none;
             }
+          }
+        </style>
+      </head>
 
-            h2 {
-              margin: 6px 0 0;
-              font-size: 16px;
-              text-align: center;
-              text-transform: uppercase;
-            }
+      <body>
+        <div class="page">
+          <div class="content">
+            <header class="kop">
+              <h1 class="kop-title">Rukun Tetangga</h1>
+              <h2 class="kop-subtitle">${escapeHtml(latestWilayahText.rtRw)}</h2>
 
-            p {
-              margin: 6px 0;
-              color: #4b5563;
-              font-size: 13px;
-            }
+              <div class="kop-address">
+                ${
+                  latestWilayahText.kelKec
+                    ? `<div>${escapeHtml(latestWilayahText.kelKec)}</div>`
+                    : ""
+                }
+                ${
+                  latestWilayahText.kotaProvinsi
+                    ? `<div>${escapeHtml(latestWilayahText.kotaProvinsi)}</div>`
+                    : ""
+                }
+              </div>
+            </header>
 
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              font-size: 11px;
-            }
+            <h3 class="document-title">Laporan Data Sensus Warga</h3>
+            <p class="document-subtitle">
+              Data warga berdasarkan hasil pendataan administrasi ${escapeHtml(latestWilayahText.rtRw)}
+            </p>
 
-            th, td {
-              border: 1px solid #d1d5db;
-              padding: 8px;
-              text-align: left;
-              vertical-align: top;
-            }
+            <section class="meta">
+              <div class="meta-label">Tanggal Cetak</div>
+              <div>: ${printedDate}</div>
 
-            th {
-              background: #f3f4f6;
-              font-weight: 700;
-            }
+              <div class="meta-label">Jumlah Data</div>
+              <div>: ${sortedData.length} warga</div>
 
-            .header {
-              text-align: center;
-              border-bottom: 2px solid #111827;
-              padding-bottom: 14px;
-              margin-bottom: 16px;
-            }
+              <div class="meta-label">Wilayah</div>
+              <div>: ${escapeHtml(latestWilayahText.rtRw)}</div>
+            </section>
 
-            .header-info {
-              margin-top: 8px;
-              font-size: 13px;
-              color: #374151;
-              line-height: 1.5;
-            }
+            <<section class="summary">
+  <div class="summary-card">
+    <p class="summary-label">Total Data:</p>
+    <p class="summary-value">${sortedData.length}</p>
+  </div>
 
-            .summary {
-              margin-bottom: 16px;
-              display: flex;
-              gap: 16px;
-              font-size: 13px;
-            }
+  <div class="summary-card">
+    <p class="summary-label">Total Warga Terdaftar:</p>
+    <p class="summary-value">${dataWarga.length}</p>
+  </div>
+</section>
 
-            .summary div {
-              border: 1px solid #d1d5db;
-              padding: 8px 12px;
-              border-radius: 8px;
-            }
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 4%;">No</th>
+                  <th style="width: 13%;">Nama Lengkap</th>
+                  <th style="width: 9%;">Tgl Lahir</th>
+                  <th style="width: 8%;">Gender</th>
+                  <th style="width: 14%;">NIK</th>
+                  <th style="width: 14%;">No KK</th>
+                  <th style="width: 14%;">Alamat</th>
+                  <th style="width: 9%;">Status Keluarga</th>
+                  <th style="width: 7%;">Status Warga</th>
+                  <th style="width: 8%;">Kelengkapan</th>
+                </tr>
+              </thead>
 
-            .footer {
-              margin-top: 32px;
-              display: flex;
-              justify-content: flex-end;
-              font-size: 13px;
-            }
+              <tbody>
+                ${printRows}
+              </tbody>
+            </table>
+          </div>
 
-            .signature {
-              width: 220px;
-              text-align: center;
-            }
-
-            .signature-space {
-              height: 70px;
-            }
-
-            @media print {
-              body {
-                padding: 0;
-              }
-            }
-          </style>
-        </head>
-
-        <body>
-          <div class="header">
-            <h1>Laporan Data Sensus Warga</h1>
-            <h2>${escapeHtml(latestWilayahText.rtRw)}</h2>
-
-            <div class="header-info">
-              ${
-                latestWilayahText.kelKec
-                  ? `<div>${escapeHtml(latestWilayahText.kelKec)}</div>`
-                  : ""
-              }
-              ${
-                latestWilayahText.kotaProvinsi
-                  ? `<div>${escapeHtml(latestWilayahText.kotaProvinsi)}</div>`
-                  : ""
-              }
+          <footer class="footer">
+            <div class="footer-left">
+              <div>Dicetak pada: ${escapeHtml(printedDateTime)}</div>
+              <div class="print-help">
+                Matikan opsi browser "Headers and footers" agar about:blank dan nomor halaman bawaan tidak tampil.
+              </div>
             </div>
-          </div>
 
-          <p>Dicetak pada ${new Date().toLocaleDateString("id-ID")}</p>
-
-          <div class="summary">
-            <div>Total Data: <strong>${sortedData.length}</strong></div>
-            <div>Total Warga Terdaftar: <strong>${dataWarga.length}</strong></div>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama Lengkap</th>
-                <th>Tgl Lahir</th>
-                <th>Gender</th>
-                <th>NIK</th>
-                <th>No KK</th>
-                <th>Alamat</th>
-                <th>Status Keluarga</th>
-                <th>Status Warga</th>
-                <th>Kelengkapan</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              ${printRows}
-            </tbody>
-          </table>
-
-          <div class="footer">
             <div class="signature">
-              <p>${escapeHtml(latestPengaturan.kota || "")}, ${new Date().toLocaleDateString(
-                "id-ID",
-              )}</p>
+              <p>${escapeHtml(latestPengaturan.kota || "")}, ${printedDate}</p>
               <p>Ketua RT</p>
               <div class="signature-space"></div>
-              <p><strong>${escapeHtml(latestPengaturan.namaKetuaRT || "-")}</strong></p>
+              <p class="signature-name">
+                ${escapeHtml(latestPengaturan.namaKetuaRT || "-")}
+              </p>
             </div>
-          </div>
+          </footer>
+        </div>
 
-          <script>
-            window.onload = function() {
-              window.print();
-            };
-          </script>
-        </body>
-      </html>
-    `);
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+    </html>
+  `);
 
-    printWindow.document.close();
-  };
+  printWindow.document.close();
+};
 
   const handleLogout = async () => {
     const confirmLogout = confirm("Yakin ingin logout?");
