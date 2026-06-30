@@ -3,17 +3,33 @@
 import { useEffect, useRef, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 
+type ImageFieldName =
+  | "heroImageUrl"
+  | "activityImageUrl"
+  | "environmentImageUrl"
+  | "areaImageUrl"
+  | "galleryImage1Url"
+  | "galleryImage2Url"
+  | "galleryImage3Url"
+  | "galleryImage4Url";
+
 type LandingContent = {
   id: number;
   heroBadge: string;
   heroTitle: string;
   heroDescription: string;
   heroImageUrl: string;
+  activityImageUrl: string;
+  environmentImageUrl: string;
   aboutLabel: string;
   aboutTitle: string;
   aboutDescription1: string;
   aboutDescription2: string;
   areaImageUrl: string;
+  galleryImage1Url: string;
+  galleryImage2Url: string;
+  galleryImage3Url: string;
+  galleryImage4Url: string;
   ctaTitle: string;
   ctaDescription: string;
 };
@@ -30,6 +46,8 @@ const initialForm = {
   heroDescription:
     "Halaman informasi warga RT 02 Kampung Pasawahan, Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Website ini menjadi media informasi lingkungan, kegiatan warga, pengumuman, dan dokumentasi kebersamaan warga.",
   heroImageUrl: "",
+  activityImageUrl: "",
+  environmentImageUrl: "",
   aboutLabel: "Tentang Wilayah",
   aboutTitle: "RT 02 Kampung Pasawahan, wilayah warga di Kelurahan Sayati.",
   aboutDescription1:
@@ -37,20 +55,121 @@ const initialForm = {
   aboutDescription2:
     "Dengan semangat kebersamaan, warga dan pengurus RT berupaya menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam kegiatan sosial dan administrasi warga.",
   areaImageUrl: "",
+  galleryImage1Url: "",
+  galleryImage2Url: "",
+  galleryImage3Url: "",
+  galleryImage4Url: "",
   ctaTitle: "Punya informasi atau perubahan data warga?",
   ctaDescription:
     "Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk menyampaikan informasi penting, perubahan data keluarga, atau agenda kegiatan warga.",
 };
 
+type ImageUploadCardProps = {
+  title: string;
+  description: string;
+  value: string;
+  fieldName: ImageFieldName;
+  isUploading: boolean;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  onUpload: (file: File, fieldName: ImageFieldName) => void;
+  onRemove: (fieldName: ImageFieldName) => void;
+};
+
+function ImageUploadCard({
+  title,
+  description,
+  value,
+  fieldName,
+  isUploading,
+  inputRef,
+  onUpload,
+  onRemove,
+}: ImageUploadCardProps) {
+  return (
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        disabled={isUploading}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+
+          if (file) {
+            onUpload(file, fieldName);
+          }
+        }}
+        className="hidden"
+      />
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-slate-800">{title}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            {description}
+          </p>
+
+          {value ? (
+            <p className="mt-2 text-xs font-semibold text-blue-600">
+              Gambar sudah terupload. Jangan lupa klik Simpan Konten.
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-slate-500">Belum ada gambar.</p>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={isUploading}
+            onClick={() => inputRef.current?.click()}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isUploading ? "Mengupload..." : "Upload Gambar"}
+          </button>
+
+          {value ? (
+            <button
+              type="button"
+              onClick={() => onRemove(fieldName)}
+              className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+            >
+              Hapus Gambar
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      {value ? (
+        <div className="mt-4 overflow-hidden rounded-2xl bg-white">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={value}
+            alt={title}
+            className="h-44 w-full object-cover"
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function AdminLandingPage() {
   const heroImageInputRef = useRef<HTMLInputElement | null>(null);
+  const activityImageInputRef = useRef<HTMLInputElement | null>(null);
+  const environmentImageInputRef = useRef<HTMLInputElement | null>(null);
   const areaImageInputRef = useRef<HTMLInputElement | null>(null);
+  const galleryImage1InputRef = useRef<HTMLInputElement | null>(null);
+  const galleryImage2InputRef = useRef<HTMLInputElement | null>(null);
+  const galleryImage3InputRef = useRef<HTMLInputElement | null>(null);
+  const galleryImage4InputRef = useRef<HTMLInputElement | null>(null);
 
   const [form, setForm] = useState(initialForm);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingHero, setIsUploadingHero] = useState(false);
-  const [isUploadingArea, setIsUploadingArea] = useState(false);
+  const [uploadingField, setUploadingField] = useState<ImageFieldName | null>(
+    null,
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -76,11 +195,17 @@ export default function AdminLandingPage() {
             heroTitle: result.data.heroTitle || "",
             heroDescription: result.data.heroDescription || "",
             heroImageUrl: result.data.heroImageUrl || "",
+            activityImageUrl: result.data.activityImageUrl || "",
+            environmentImageUrl: result.data.environmentImageUrl || "",
             aboutLabel: result.data.aboutLabel || "",
             aboutTitle: result.data.aboutTitle || "",
             aboutDescription1: result.data.aboutDescription1 || "",
             aboutDescription2: result.data.aboutDescription2 || "",
             areaImageUrl: result.data.areaImageUrl || "",
+            galleryImage1Url: result.data.galleryImage1Url || "",
+            galleryImage2Url: result.data.galleryImage2Url || "",
+            galleryImage3Url: result.data.galleryImage3Url || "",
+            galleryImage4Url: result.data.galleryImage4Url || "",
             ctaTitle: result.data.ctaTitle || "",
             ctaDescription: result.data.ctaDescription || "",
           });
@@ -103,6 +228,21 @@ export default function AdminLandingPage() {
     };
   }, []);
 
+  const getInputRef = (fieldName: ImageFieldName) => {
+    const refs = {
+      heroImageUrl: heroImageInputRef,
+      activityImageUrl: activityImageInputRef,
+      environmentImageUrl: environmentImageInputRef,
+      areaImageUrl: areaImageInputRef,
+      galleryImage1Url: galleryImage1InputRef,
+      galleryImage2Url: galleryImage2InputRef,
+      galleryImage3Url: galleryImage3InputRef,
+      galleryImage4Url: galleryImage4InputRef,
+    };
+
+    return refs[fieldName];
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -114,15 +254,9 @@ export default function AdminLandingPage() {
     }));
   };
 
-  const handleUploadImage = async (
-    file: File,
-    fieldName: "heroImageUrl" | "areaImageUrl",
-  ) => {
-    const setUploading =
-      fieldName === "heroImageUrl" ? setIsUploadingHero : setIsUploadingArea;
-
+  const handleUploadImage = async (file: File, fieldName: ImageFieldName) => {
     try {
-      setUploading(true);
+      setUploadingField(fieldName);
 
       const formData = new FormData();
       formData.append("file", file);
@@ -152,19 +286,17 @@ export default function AdminLandingPage() {
     } catch {
       alert("Gagal upload gambar");
     } finally {
-      setUploading(false);
+      setUploadingField(null);
 
-      if (fieldName === "heroImageUrl" && heroImageInputRef.current) {
-        heroImageInputRef.current.value = "";
-      }
+      const inputRef = getInputRef(fieldName);
 
-      if (fieldName === "areaImageUrl" && areaImageInputRef.current) {
-        areaImageInputRef.current.value = "";
+      if (inputRef.current) {
+        inputRef.current.value = "";
       }
     }
   };
 
-  const handleRemoveImage = (fieldName: "heroImageUrl" | "areaImageUrl") => {
+  const handleRemoveImage = (fieldName: ImageFieldName) => {
     const confirmRemove = confirm("Yakin ingin menghapus gambar ini?");
 
     if (!confirmRemove) return;
@@ -212,7 +344,7 @@ export default function AdminLandingPage() {
   return (
     <AdminShell
       title="Konten Landing Page"
-      description="Atur teks dan gambar utama landing page publik RT 02 Kampung Pasawahan."
+      description="Atur teks dan semua gambar landing page publik RT 02 Kampung Pasawahan."
     >
       {isLoading ? (
         <div className="rounded-xl bg-white p-8 text-center text-slate-500 shadow">
@@ -224,7 +356,7 @@ export default function AdminLandingPage() {
             <div className="border-b border-slate-200 pb-5">
               <h2 className="text-xl font-semibold">Konten Utama</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Konten ini akan digunakan untuk section utama landing page.
+                Konten ini akan digunakan untuk landing page publik.
               </p>
             </div>
 
@@ -276,70 +408,39 @@ export default function AdminLandingPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
-                      Gambar Hero
-                    </label>
+                  <ImageUploadCard
+                    title="Gambar Hero Utama"
+                    description="Gambar besar di sisi kanan hero. Rekomendasi rasio 4:3. Maksimal 2MB."
+                    value={form.heroImageUrl}
+                    fieldName="heroImageUrl"
+                    inputRef={heroImageInputRef}
+                    isUploading={uploadingField === "heroImageUrl"}
+                    onUpload={handleUploadImage}
+                    onRemove={handleRemoveImage}
+                  />
 
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
-                      <input
-                        ref={heroImageInputRef}
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        disabled={isUploadingHero}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <ImageUploadCard
+                      title="Gambar Kegiatan Kecil"
+                      description="Gambar kecil di bawah hero. Rasio 4:3. Maksimal 2MB."
+                      value={form.activityImageUrl}
+                      fieldName="activityImageUrl"
+                      inputRef={activityImageInputRef}
+                      isUploading={uploadingField === "activityImageUrl"}
+                      onUpload={handleUploadImage}
+                      onRemove={handleRemoveImage}
+                    />
 
-                          if (file) {
-                            void handleUploadImage(file, "heroImageUrl");
-                          }
-                        }}
-                        className="hidden"
-                      />
-
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-800">
-                            Upload gambar hero
-                          </p>
-                          <p className="mt-1 text-xs leading-5 text-slate-500">
-                            Rekomendasi 1280x960 px atau 1200x900 px. Format
-                            JPG, PNG, WEBP. Maksimal 2MB.
-                          </p>
-
-                          {form.heroImageUrl ? (
-                            <p className="mt-2 text-xs font-semibold text-blue-600">
-                              Gambar hero sudah terupload.
-                            </p>
-                          ) : (
-                            <p className="mt-2 text-xs text-slate-500">
-                              Belum ada gambar hero.
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            disabled={isUploadingHero}
-                            onClick={() => heroImageInputRef.current?.click()}
-                            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isUploadingHero ? "Mengupload..." : "Upload Gambar"}
-                          </button>
-
-                          {form.heroImageUrl ? (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveImage("heroImageUrl")}
-                              className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
-                            >
-                              Hapus Gambar
-                            </button>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
+                    <ImageUploadCard
+                      title="Gambar Lingkungan Kecil"
+                      description="Gambar kecil kedua di bawah hero. Rasio 4:3. Maksimal 2MB."
+                      value={form.environmentImageUrl}
+                      fieldName="environmentImageUrl"
+                      inputRef={environmentImageInputRef}
+                      isUploading={uploadingField === "environmentImageUrl"}
+                      onUpload={handleUploadImage}
+                      onRemove={handleRemoveImage}
+                    />
                   </div>
                 </div>
               </section>
@@ -405,71 +506,71 @@ export default function AdminLandingPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
-                      Gambar Area Lingkungan
-                    </label>
+                  <ImageUploadCard
+                    title="Gambar Area Lingkungan"
+                    description="Gambar di section Lingkungan Warga. Rekomendasi rasio 16:10 atau 16:9. Maksimal 2MB."
+                    value={form.areaImageUrl}
+                    fieldName="areaImageUrl"
+                    inputRef={areaImageInputRef}
+                    isUploading={uploadingField === "areaImageUrl"}
+                    onUpload={handleUploadImage}
+                    onRemove={handleRemoveImage}
+                  />
+                </div>
+              </section>
 
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
-                      <input
-                        ref={areaImageInputRef}
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        disabled={isUploadingArea}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
+              <section className="rounded-2xl border border-slate-200 p-5">
+                <h3 className="text-lg font-bold text-slate-950">
+                  Galeri Landing Page
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Upload 4 gambar untuk section galeri di bagian bawah landing page.
+                </p>
 
-                          if (file) {
-                            void handleUploadImage(file, "areaImageUrl");
-                          }
-                        }}
-                        className="hidden"
-                      />
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <ImageUploadCard
+                    title="Galeri 1"
+                    description="Gambar galeri pertama. Rasio 4:3. Maksimal 2MB."
+                    value={form.galleryImage1Url}
+                    fieldName="galleryImage1Url"
+                    inputRef={galleryImage1InputRef}
+                    isUploading={uploadingField === "galleryImage1Url"}
+                    onUpload={handleUploadImage}
+                    onRemove={handleRemoveImage}
+                  />
 
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-800">
-                            Upload gambar area lingkungan
-                          </p>
-                          <p className="mt-1 text-xs leading-5 text-slate-500">
-                            Rekomendasi 16:10 atau 16:9. Format JPG, PNG, WEBP.
-                            Maksimal 2MB.
-                          </p>
+                  <ImageUploadCard
+                    title="Galeri 2"
+                    description="Gambar galeri kedua. Rasio 4:3. Maksimal 2MB."
+                    value={form.galleryImage2Url}
+                    fieldName="galleryImage2Url"
+                    inputRef={galleryImage2InputRef}
+                    isUploading={uploadingField === "galleryImage2Url"}
+                    onUpload={handleUploadImage}
+                    onRemove={handleRemoveImage}
+                  />
 
-                          {form.areaImageUrl ? (
-                            <p className="mt-2 text-xs font-semibold text-blue-600">
-                              Gambar area sudah terupload.
-                            </p>
-                          ) : (
-                            <p className="mt-2 text-xs text-slate-500">
-                              Belum ada gambar area.
-                            </p>
-                          )}
-                        </div>
+                  <ImageUploadCard
+                    title="Galeri 3"
+                    description="Gambar galeri ketiga. Rasio 4:3. Maksimal 2MB."
+                    value={form.galleryImage3Url}
+                    fieldName="galleryImage3Url"
+                    inputRef={galleryImage3InputRef}
+                    isUploading={uploadingField === "galleryImage3Url"}
+                    onUpload={handleUploadImage}
+                    onRemove={handleRemoveImage}
+                  />
 
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            disabled={isUploadingArea}
-                            onClick={() => areaImageInputRef.current?.click()}
-                            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isUploadingArea ? "Mengupload..." : "Upload Gambar"}
-                          </button>
-
-                          {form.areaImageUrl ? (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveImage("areaImageUrl")}
-                              className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
-                            >
-                              Hapus Gambar
-                            </button>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <ImageUploadCard
+                    title="Galeri 4"
+                    description="Gambar galeri keempat. Rasio 4:3. Maksimal 2MB."
+                    value={form.galleryImage4Url}
+                    fieldName="galleryImage4Url"
+                    inputRef={galleryImage4InputRef}
+                    isUploading={uploadingField === "galleryImage4Url"}
+                    onUpload={handleUploadImage}
+                    onRemove={handleRemoveImage}
+                  />
                 </div>
               </section>
 
@@ -513,7 +614,7 @@ export default function AdminLandingPage() {
             <div className="mt-6 flex justify-end">
               <button
                 type="submit"
-                disabled={isSaving || isUploadingHero || isUploadingArea}
+                disabled={isSaving || Boolean(uploadingField)}
                 className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? "Menyimpan..." : "Simpan Konten"}
@@ -546,7 +647,7 @@ export default function AdminLandingPage() {
                     <img
                       src={form.heroImageUrl}
                       alt="Preview hero"
-                      className="h-40 w-full object-contain"
+                      className="h-40 w-full object-cover"
                     />
                   </div>
                 ) : null}
@@ -570,10 +671,45 @@ export default function AdminLandingPage() {
                     <img
                       src={form.areaImageUrl}
                       alt="Preview area"
-                      className="h-40 w-full object-contain"
+                      className="h-40 w-full object-cover"
                     />
                   </div>
                 ) : null}
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 p-5">
+                <h3 className="text-sm font-bold text-slate-950">
+                  Preview Galeri
+                </h3>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {[
+                    form.galleryImage1Url,
+                    form.galleryImage2Url,
+                    form.galleryImage3Url,
+                    form.galleryImage4Url,
+                  ].map((imageUrl, index) => (
+                    <div
+                      key={`preview-gallery-${index}`}
+                      className="overflow-hidden rounded-xl bg-slate-100"
+                    >
+                      {imageUrl ? (
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={imageUrl}
+                            alt={`Preview galeri ${index + 1}`}
+                            className="h-24 w-full object-cover"
+                          />
+                        </>
+                      ) : (
+                        <div className="flex h-24 items-center justify-center text-xs text-slate-400">
+                          Galeri {index + 1}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="rounded-2xl bg-blue-600 p-5 text-white">

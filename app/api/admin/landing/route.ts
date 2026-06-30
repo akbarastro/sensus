@@ -6,11 +6,17 @@ type LandingContentPayload = {
   heroTitle?: string;
   heroDescription?: string;
   heroImageUrl?: string;
+  activityImageUrl?: string;
+  environmentImageUrl?: string;
   aboutLabel?: string;
   aboutTitle?: string;
   aboutDescription1?: string;
   aboutDescription2?: string;
   areaImageUrl?: string;
+  galleryImage1Url?: string;
+  galleryImage2Url?: string;
+  galleryImage3Url?: string;
+  galleryImage4Url?: string;
   ctaTitle?: string;
   ctaDescription?: string;
 };
@@ -42,6 +48,8 @@ const defaultLandingContent = {
   heroDescription:
     "Halaman informasi warga RT 02 Kampung Pasawahan, Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Website ini menjadi media informasi lingkungan, kegiatan warga, pengumuman, dan dokumentasi kebersamaan warga.",
   heroImageUrl: "",
+  activityImageUrl: "",
+  environmentImageUrl: "",
   aboutLabel: "Tentang Wilayah",
   aboutTitle: "RT 02 Kampung Pasawahan, wilayah warga di Kelurahan Sayati.",
   aboutDescription1:
@@ -49,6 +57,10 @@ const defaultLandingContent = {
   aboutDescription2:
     "Dengan semangat kebersamaan, warga dan pengurus RT berupaya menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam kegiatan sosial dan administrasi warga.",
   areaImageUrl: "",
+  galleryImage1Url: "",
+  galleryImage2Url: "",
+  galleryImage3Url: "",
+  galleryImage4Url: "",
   ctaTitle: "Punya informasi atau perubahan data warga?",
   ctaDescription:
     "Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk menyampaikan informasi penting, perubahan data keluarga, atau agenda kegiatan warga.",
@@ -89,11 +101,17 @@ export async function PUT(request: Request) {
     const heroTitle = cleanText(body.heroTitle);
     const heroDescription = cleanText(body.heroDescription);
     const heroImageUrl = cleanUrl(body.heroImageUrl);
+    const activityImageUrl = cleanUrl(body.activityImageUrl);
+    const environmentImageUrl = cleanUrl(body.environmentImageUrl);
     const aboutLabel = cleanText(body.aboutLabel);
     const aboutTitle = cleanText(body.aboutTitle);
     const aboutDescription1 = cleanText(body.aboutDescription1);
     const aboutDescription2 = cleanText(body.aboutDescription2);
     const areaImageUrl = cleanUrl(body.areaImageUrl);
+    const galleryImage1Url = cleanUrl(body.galleryImage1Url);
+    const galleryImage2Url = cleanUrl(body.galleryImage2Url);
+    const galleryImage3Url = cleanUrl(body.galleryImage3Url);
+    const galleryImage4Url = cleanUrl(body.galleryImage4Url);
     const ctaTitle = cleanText(body.ctaTitle);
     const ctaDescription = cleanText(body.ctaDescription);
 
@@ -136,11 +154,17 @@ export async function PUT(request: Request) {
         heroTitle,
         heroDescription,
         heroImageUrl,
+        activityImageUrl,
+        environmentImageUrl,
         aboutLabel,
         aboutTitle,
         aboutDescription1,
         aboutDescription2,
         areaImageUrl,
+        galleryImage1Url,
+        galleryImage2Url,
+        galleryImage3Url,
+        galleryImage4Url,
         ctaTitle,
         ctaDescription,
       },
@@ -150,11 +174,17 @@ export async function PUT(request: Request) {
         heroTitle,
         heroDescription,
         heroImageUrl,
+        activityImageUrl,
+        environmentImageUrl,
         aboutLabel,
         aboutTitle,
         aboutDescription1,
         aboutDescription2,
         areaImageUrl,
+        galleryImage1Url,
+        galleryImage2Url,
+        galleryImage3Url,
+        galleryImage4Url,
         ctaTitle,
         ctaDescription,
       },

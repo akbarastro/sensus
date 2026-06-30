@@ -19,6 +19,8 @@ const defaultLandingContent = {
   heroDescription:
     "Halaman informasi warga RT 02 Kampung Pasawahan, Kelurahan Sayati, Kecamatan Margahayu, Kabupaten Bandung. Website ini menjadi media informasi lingkungan, kegiatan warga, pengumuman, dan dokumentasi kebersamaan warga.",
   heroImageUrl: "",
+  activityImageUrl: "",
+  environmentImageUrl: "",
   aboutLabel: "Tentang Wilayah",
   aboutTitle: "RT 02 Kampung Pasawahan, wilayah warga di Kelurahan Sayati.",
   aboutDescription1:
@@ -26,6 +28,10 @@ const defaultLandingContent = {
   aboutDescription2:
     "Dengan semangat kebersamaan, warga dan pengurus RT berupaya menjaga lingkungan tetap nyaman, aman, bersih, serta tertib dalam kegiatan sosial dan administrasi warga.",
   areaImageUrl: "",
+  galleryImage1Url: "",
+  galleryImage2Url: "",
+  galleryImage3Url: "",
+  galleryImage4Url: "",
   ctaTitle: "Punya informasi atau perubahan data warga?",
   ctaDescription:
     "Silakan hubungi pengurus RT 02 Kampung Pasawahan untuk menyampaikan informasi penting, perubahan data keluarga, atau agenda kegiatan warga.",
@@ -126,27 +132,31 @@ const news = [
   },
 ];
 
-const galleryItems = [
-  {
-    title: "Suasana Lingkungan",
-    description: "Space untuk foto area lingkungan RT 02 Kampung Pasawahan.",
-  },
-  {
-    title: "Kegiatan Warga",
-    description: "Space untuk dokumentasi kegiatan warga dan kebersamaan.",
-  },
-  {
-    title: "Kerja Bakti",
-    description: "Space untuk foto kegiatan gotong royong lingkungan.",
-  },
-  {
-    title: "Koordinasi Warga",
-    description: "Space untuk dokumentasi rapat atau musyawarah warga.",
-  },
-];
-
 export default async function HomePage() {
   const landingContent = await getLandingContent();
+
+  const galleryItems = [
+    {
+      title: "Suasana Lingkungan",
+      description: "Dokumentasi area lingkungan RT 02 Kampung Pasawahan.",
+      imageUrl: landingContent.galleryImage1Url,
+    },
+    {
+      title: "Kegiatan Warga",
+      description: "Dokumentasi kegiatan warga dan kebersamaan.",
+      imageUrl: landingContent.galleryImage2Url,
+    },
+    {
+      title: "Kerja Bakti",
+      description: "Dokumentasi kegiatan gotong royong lingkungan.",
+      imageUrl: landingContent.galleryImage3Url,
+    },
+    {
+      title: "Koordinasi Warga",
+      description: "Dokumentasi rapat atau musyawarah warga.",
+      imageUrl: landingContent.galleryImage4Url,
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -278,21 +288,43 @@ export default async function HomePage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white p-3 shadow-sm">
-                <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-blue-50">
-                  <div className="text-center text-sm text-slate-500">
-                    📷
-                    <p className="mt-2 font-semibold">Foto Kegiatan</p>
+                {landingContent.activityImageUrl ? (
+                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={landingContent.activityImageUrl}
+                      alt="Foto kegiatan warga"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-blue-50">
+                    <div className="text-center text-sm text-slate-500">
+                      📷
+                      <p className="mt-2 font-semibold">Foto Kegiatan</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white p-3 shadow-sm">
-                <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-sky-50">
-                  <div className="text-center text-sm text-slate-500">
-                    🌤️
-                    <p className="mt-2 font-semibold">Foto Lingkungan</p>
+                {landingContent.environmentImageUrl ? (
+                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={landingContent.environmentImageUrl}
+                      alt="Foto lingkungan warga"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-sky-50">
+                    <div className="text-center text-sm text-slate-500">
+                      🌤️
+                      <p className="mt-2 font-semibold">Foto Lingkungan</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -499,16 +531,27 @@ export default async function HomePage() {
                 key={item.title}
                 className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-sm"
               >
-                <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-slate-50 to-blue-100">
-                  <div className="text-center">
-                    <div className="text-4xl">
-                      {index % 2 === 0 ? "📸" : "🏡"}
-                    </div>
-                    <p className="mt-3 text-xs font-semibold text-slate-500">
-                      Space Gambar
-                    </p>
+                {item.imageUrl ? (
+                  <div className="aspect-[4/3] overflow-hidden bg-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-slate-50 to-blue-100">
+                    <div className="text-center">
+                      <div className="text-4xl">
+                        {index % 2 === 0 ? "📸" : "🏡"}
+                      </div>
+                      <p className="mt-3 text-xs font-semibold text-slate-500">
+                        Space Gambar
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-5">
                   <h3 className="font-bold text-slate-950">{item.title}</h3>
