@@ -33,3 +33,16 @@ model PengaturanRt {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model LandingBanner {
+  id          Int      @id
+  isActive    Boolean  @default(false)
+  eyebrow     String   @default("")
+  title       String   @default("")
+  description String   @default("")
+  imageUrl    String   @default("")
+  buttonText  String   @default("")
+  buttonUrl   String   @default("")
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}

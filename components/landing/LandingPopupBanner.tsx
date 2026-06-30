@@ -1,20 +1,84 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
+type LandingBanner = {
+  id: number;
+  isActive: boolean;
+  eyebrow: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  buttonText: string;
+  buttonUrl: string;
+};
+
+type ApiResponse<T> = {
+  success: boolean;
+  message?: string;
+  data?: T;
+};
+
+const defaultBanner: LandingBanner = {
+  id: 1,
+  isActive: false,
+  eyebrow: "",
+  title: "",
+  description: "",
+  imageUrl: "",
+  buttonText: "",
+  buttonUrl: "",
+};
+
 export default function LandingPopupBanner() {
+  const [banner, setBanner] = useState<LandingBanner>(defaultBanner);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const hasClosedPopup = sessionStorage.getItem("rt02_popup_closed");
+    let isMounted = true;
 
-    if (!hasClosedPopup) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 600);
+    const loadBanner = async () => {
+      try {
+        const response = await fetch("/api/admin/banner", {
+          cache: "no-store",
+        });
 
-      return () => clearTimeout(timer);
-    }
+        const result: ApiResponse<LandingBanner> = await response.json();
+
+        if (!isMounted) return;
+
+        if (!response.ok || !result.success || !result.data) {
+          return;
+        }
+
+        if (!result.data.isActive) {
+          return;
+        }
+
+        setBanner(result.data);
+
+        const hasClosedPopup = sessionStorage.getItem("rt02_popup_closed");
+
+        if (!hasClosedPopup) {
+          const timer = setTimeout(() => {
+            if (isMounted) {
+              setIsOpen(true);
+            }
+          }, 600);
+
+          return () => clearTimeout(timer);
+        }
+      } catch {
+        // Jika banner gagal dimuat, landing page tetap tampil normal.
+      }
+    };
+
+    void loadBanner();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleClose = () => {
@@ -22,7 +86,28 @@ export default function LandingPopupBanner() {
     setIsOpen(false);
   };
 
-  if (!isOpen) return null;
+  const handleButtonClick = () => {
+    handleClose();
+
+    if (!banner.buttonUrl) return;
+
+    if (banner.buttonUrl.startsWith("#")) {
+      const target = document.querySelector(banner.buttonUrl);
+
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+
+      return;
+    }
+
+    window.location.href = banner.buttonUrl;
+  };
+
+  if (!isOpen || !banner.isActive) return null;
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm">
@@ -36,51 +121,64 @@ export default function LandingPopupBanner() {
         </button>
 
         <div className="aspect-video bg-gradient-to-br from-blue-100 via-white to-sky-100">
-          <div className="flex h-full items-center justify-center p-8">
-            <div className="text-center">
-              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-600 text-3xl shadow-lg">
-                🏘️
+          {banner.imageUrl ? (
+            <Image
+              src={banner.imageUrl}
+              alt={banner.title || "Banner popup"}
+              width={1280}
+              height={720}
+              className="h-full w-full object-cover"
+              priority
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center p-8">
+              <div className="text-center">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-600 text-3xl shadow-lg">
+                  🏘️
+                </div>
+
+                {banner.eyebrow ? (
+                  <p className="text-sm font-bold uppercase tracking-[0.25em] text-blue-600">
+                    {banner.eyebrow}
+                  </p>
+                ) : null}
+
+                <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                  {banner.title}
+                </h2>
+
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
+                  {banner.description}
+                </p>
               </div>
-
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-blue-600">
-                Informasi Warga
-              </p>
-
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                Selamat Datang di RT 02 Kampung Pasawahan
-              </h2>
-
-              <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-                Media informasi warga Kelurahan Sayati, Kecamatan Margahayu,
-                Kabupaten Bandung.
-              </p>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="p-6 sm:p-7">
-          <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-            Pengumuman
-          </div>
+          {banner.eyebrow ? (
+            <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              {banner.eyebrow}
+            </div>
+          ) : null}
 
           <h3 className="mt-4 text-2xl font-bold text-slate-950">
-            Update Informasi dan Kegiatan Warga
+            {banner.title}
           </h3>
 
           <p className="mt-3 text-sm leading-7 text-slate-600">
-            Warga RT 02 Kampung Pasawahan dapat mengikuti informasi terbaru
-            terkait kegiatan lingkungan, kerja bakti, pengumuman warga, dan
-            pembaruan data administrasi melalui halaman ini.
+            {banner.description}
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <a
-              href="#berita"
-              onClick={handleClose}
-              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-            >
-              Lihat Pengumuman
-            </a>
+            {banner.buttonText ? (
+              <button
+                onClick={handleButtonClick}
+                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              >
+                {banner.buttonText}
+              </button>
+            ) : null}
 
             <button
               onClick={handleClose}
